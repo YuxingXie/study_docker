@@ -83,11 +83,11 @@ docker run时干了什么？
 2. 本地无，找docker Hub，有则下载至本地，无则终止；
 3. 以镜像为模板产生容器实例运行。
 
-### 2.2 Docker常用命令
+## 三、 Docker常用命令
 
 要记的东西较多，按照我的思维，理解大于记忆，所以准备一份参考字典： https://www.runoob.com/docker/docker-command-manual.html
 
-#### 启动与帮助类
+### 3.1 启动与帮助类
 * 启动：systemctl start docker
 * 停止：systemctl stop docker
 * 重启：systemctl restart docker
@@ -95,7 +95,7 @@ docker run时干了什么？
 * 开机启动：systemctl enable docker
 * 查看概要信息：docker info
 * 查看命令帮助：docker [command] --help
-#### 镜像命令
+### 3.2 镜像命令
 * images
 了解一下镜像的表示法：repository:tag，仓库和版本号代表一个镜像
 
@@ -115,9 +115,9 @@ docker rmi -f $(docker images -qa)
 
 虚悬镜像(dangling image)：无名称和版本号<none>的镜像，建议删除。
 
-#### 容器命令
+### 3.3 容器命令
 
-##### 1.创建容器
+####  3.3.1.创建容器
 
 以Docker使用Ubuntu镜像为例。
 
@@ -128,7 +128,7 @@ docker使用的linux内核与docker安装所在的操作系统内核不是一回
 centos内核过大，使用Ubuntu可减小占用空间。
 
 
-##### 2.启动容器
+#### 3.3.2 启动容器
 
 启动前先了解下run命令：
 ```text
@@ -152,10 +152,10 @@ docker run -it ubuntu /bin/bash
 ```
 这样就进入了docker所带的ubuntu伪终端。
 
-##### 3.退出容器
+#### 3.3.3 退出容器
 在伪终端中用exit退出，容器停止，使用ctrl+p+q退出，容器不停止。
 
-##### 4.重启容器
+#### 3.3.4 重启容器
 
 镜像一旦run就创建了一个容器，并分配了一个id,可以用如下命令查看:
 ```text
@@ -167,11 +167,11 @@ docker ps -a
 ```text
 docker restart <id或name>
 ``` 
-##### 5.停止容器
+#### 3.3.5 停止容器
 ```text
 docker kill  <id或name>
 ```
-##### 6.删除容器
+#### 3.3.6 删除容器
 ```text
 docker rm  <id或name>
 ```
@@ -179,7 +179,7 @@ docker rm  <id或name>
 
 理解这个命令: docker rm -f $(docker ps -a),危险，生产环境勿用。
 
-##### 7.重新进入交互式容器
+#### 3.3.7 重新进入交互式容器
 
 守护式容器：run -d在后台运行即为守护式容器。而交互式容器当ctrl+p+q退出后，容器在后台运行也称为守护式容器。 
 
@@ -193,11 +193,11 @@ docker attach -it 容器id
 ```
 区别：exec在使用exit退出后，容器不会停止，而attach会。建议使用exec。
 
-##### 8. 拷贝
+#### 3.3.8 拷贝
 
 概念不要模糊，容器运行在docker，容器的镜像也在docker，docker运行在主机。
 
-###### 8.1 查看容器内文件
+##### 3.3.8.1 查看容器内文件
 
 这是一个命令组合技巧：
 ```text
@@ -207,7 +207,7 @@ docker exec 容器ID ls -al /
 
 我用这个命令查看了redis和ubuntu的根目录，发现没什么不同。
 
-###### 8.2 拷贝容器文件到主机
+##### 3.3.8.2 拷贝容器文件到主机
 ```text
 docker cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-
 docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH
@@ -234,16 +234,16 @@ docker cp /www/runoob 96f7f14e99ab:/www
 
 docker cp  96f7f14e99ab:/www /tmp/
 
-###### 8.3 docker导出容器
+##### 3.3.8.3 docker export
 
 1. [RUNOOB.COM的命令解释](https://www.runoob.com/docker/docker-export-command.html)
 
 
 
-####### docker export :
+##### 3.3.8.4 docker export :
 将文件系统作为一个tar归档文件导出到STDOUT。
 
-####### 语法
+###### 语法
 ```text
 docker export [OPTIONS] CONTAINER
 
@@ -252,10 +252,95 @@ OPTIONS说明：
 ```
 
 
-####### 实例
+###### 实例
 将id为a404c6c174a2的容器按日期保存为tar文件。
 ```text
 runoob@runoob:~$ docker export -o mysql-`date +%Y%m%d`.tar a404c6c174a2
 runoob@runoob:~$ ls mysql-`date +%Y%m%d`.tar
 mysql-20160711.tar
 ```
+
+2. 视频作者的解释
+
+导出容器的内容流作为一个tar归档文件
+
+###### 实例
+```text
+docker export 61279fc3cc6a > abcd.tar.gz
+```
+这里使用了一个“>”操作符。
+
+##### 3.3.8.5 docker import
+
+import是export的逆操作吗？不是，export是从容器实例导出为输出流，
+而import不是把输入流写入容器实例，而是写入到一个镜像中。
+
+1. [runoob的命令详解](https://www.runoob.com/docker/docker-import-command.html)
+
+###### docker import : 
+从归档文件中创建镜像。
+
+###### 语法
+docker import [OPTIONS] file|URL|- [REPOSITORY[:TAG]]
+OPTIONS说明：
+
+-c :应用docker 指令创建镜像；
+
+-m :提交时的说明文字；
+
+###### 实例
+从镜像归档文件my_ubuntu_v3.tar创建镜像，命名为runoob/ubuntu:v4
+```text
+runoob@runoob:~$ docker import  my_ubuntu_v3.tar runoob/ubuntu:v4  
+sha256:63ce4a6d6bc3fabb95dbd6c561404a309b7bdfc4e21c1d59fe9fe4299cbfea39
+runoob@runoob:~$ docker images runoob/ubuntu:v4
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+runoob/ubuntu       v4                  63ce4a6d6bc3        20 seconds ago      142.1 MB
+```
+runoob/ubuntu:v4中的runoob表示镜像的组。
+
+2. 视频作者解释
+###### 实例
+
+```text
+cat abcd.tar | docker import - atguigu/ubuntu:3.7.0
+```
+我认为视频作者的命令是非标准命令，还是先使用标准命令格式吧。
+
+现在run这个镜像，就创建了一个容器实例。
+
+## 四、 Docker镜像
+
+* 如何自己制作一个镜像供他人使用？
+
+* docker commit/push
+
+### 4.1 关于镜像
+
+前面解除过镜像，只知道它可以从docker repository search一个镜像，pull它，并run生成容器实例。
+
+这里需要更进一步了解它。
+
+#### 4.1.1 UnionFS（联合文件系统）
+
+docker pull的时候，我们查看控制台，发现它是一层层pull的。
+
+```text
+docker pull tomcat
+...
+Pulling fs layer
+...
+Pull complete
+...
+Downloading [=======================>       ] 72.44 MB/122.1 MB
+...
+## a、b、c、d、e、f是我胡乱写的，实际过程中是类似UUID的不同字符串
+aaaaaaaaaaa:Waiting
+bbbbbbbbbbb:Waiting
+ccccccccccc:Waiting
+ddddddddddd:Waiting
+eeeeeeeeeee:Waiting
+fffffffffff:Waiting
+```
+
+
