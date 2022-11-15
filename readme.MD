@@ -184,4 +184,51 @@ docker rm  <id或name>
 守护式容器：run -d在后台运行即为守护式容器。而交互式容器当ctrl+p+q退出后，容器在后台运行也称为守护式容器。 
 
 ` docker后台运行的守护式容器容器，必须有一个前台进程。如果不是运行一个一直挂起的命令，容器启动后会立即自杀，因为docker觉得自己无事可干。` 
-解决方法是带上-it参数让它有个前台守护，然后ctrl+p+q退出。
+解决方法是带上-it或-d参数让它有个前台守护。
+
+重新进入转入守护式的容器，使用exec或attach命令：
+```text
+docker exec -it 容器id
+docker attach -it 容器id
+```
+区别：exec在使用exit退出后，容器不会停止，而attach会。建议使用exec。
+
+##### 8. 拷贝
+
+概念不要模糊，容器运行在docker，容器的镜像也在docker，docker运行在主机。
+
+###### 8.1 查看容器内文件
+
+这是一个命令组合技巧：
+```text
+docker exec 容器ID ls -al
+```
+可以查看容器内的根目录结构
+
+###### 8.2 拷贝容器文件到主机
+```text
+docker cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH|-
+docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH
+```
+
+OPTIONS说明：
+
+-L :保持源目标中的链接
+
+实例
+
+将主机/www/runoob目录拷贝到容器96f7f14e99ab的/www目录下。
+```text
+docker cp /www/runoob 96f7f14e99ab:/www/
+
+```
+
+将主机/www/runoob目录拷贝到容器96f7f14e99ab中，目录重命名为www。
+```text
+docker cp /www/runoob 96f7f14e99ab:/www
+
+```
+将容器96f7f14e99ab的/www目录拷贝到主机的/tmp目录中。
+
+docker cp  96f7f14e99ab:/www /tmp/
+
