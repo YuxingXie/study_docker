@@ -201,9 +201,11 @@ docker attach -it 容器id
 
 这是一个命令组合技巧：
 ```text
-docker exec 容器ID ls -al
+docker exec 容器ID ls -al /
 ```
-可以查看容器内的根目录结构
+可以查看容器内的根目录结构.
+
+我用这个命令查看了redis和ubuntu的根目录，发现没什么不同。
 
 ###### 8.2 拷贝容器文件到主机
 ```text
@@ -232,3 +234,28 @@ docker cp /www/runoob 96f7f14e99ab:/www
 
 docker cp  96f7f14e99ab:/www /tmp/
 
+###### 8.3 docker导出容器
+
+1. [RUNOOB.COM的命令解释](https://www.runoob.com/docker/docker-export-command.html)
+
+
+
+####### docker export :
+将文件系统作为一个tar归档文件导出到STDOUT。
+
+####### 语法
+```text
+docker export [OPTIONS] CONTAINER
+
+OPTIONS说明：
+-o :将输入内容写到文件。
+```
+
+
+####### 实例
+将id为a404c6c174a2的容器按日期保存为tar文件。
+```text
+runoob@runoob:~$ docker export -o mysql-`date +%Y%m%d`.tar a404c6c174a2
+runoob@runoob:~$ ls mysql-`date +%Y%m%d`.tar
+mysql-20160711.tar
+```
