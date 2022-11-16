@@ -165,11 +165,17 @@ docker ps -a
 
 重启容器可以用restart容器id或名称来启动：
 ```text
+# 运行已停止的
+docker start <id或name>
+# 重启正在运行的
 docker restart <id或name>
 ``` 
 #### 3.3.5 停止容器
 ```text
 docker kill  <id或name>
+# 据说stop比kill优雅
+docker stop  <id或name>
+
 ```
 #### 3.3.6 删除容器
 ```text
@@ -323,6 +329,11 @@ cat abcd.tar | docker import - atguigu/ubuntu:3.7.0
 
 #### 4.1.1 UnionFS（联合文件系统）
 
+我们前面看到的一些镜像和实例，比如hello-world,ubuntu,redis,tomcat等，它们是一个个在linux中可运行的程序，
+有些需要java环境，有些需要别的环境，有些甚至是另一个linux版本的操作系统。我们可以想一想，这些程序是如何在docker中运行起来的。
+可以肯定，它们都有一个linux底层操作系统核心，有各自的运行环境，以及各自的可执行程序。linux核心我们可以猜测它们都共用docker所提供的linux核心，
+而其它的依赖环境呢？
+
 docker pull的时候，我们查看控制台，发现它是一层层pull的。
 
 ```text
@@ -342,5 +353,63 @@ ddddddddddd:Waiting
 eeeeeeeeeee:Waiting
 fffffffffff:Waiting
 ```
+
+#### 4.1.2 bootFS
+
+镜像分层的最内层，包含linux最基础的kernel，bootloader，用于引导启动最基础版的linux。
+
+#### 4.1.3 rootFS
+
+包含典型的linux系统中的/dev，/proc，/bin，/etc 等标准目录和文件。
+我想暂时不用理解太多，也理解不了。
+
+#### 4.1.4 镜像层
+
+在有了bootfs和rootfs之后，程序可以运行在它之上。我们启动的docker容器可看做是一个安装了应用程序的linux了。
+这些合起来我们称之为镜像层。
+
+#### 4.1.4 容器层
+
+在镜像层之上，我们继续操作，比如再安装一个另外的软件，此时我们相对于镜像层进行了增量操作，类似于git中所做的修改操作。
+我们增加的这一层被称作容器层。
+
+    如果我们不停的修改容器层，并不断导出为镜像，在新的镜像运行的容器实例再进行修改，又导出为镜像，这个操作可无限下去。
+    就像git提交都基于一个父提交一样无限提交下去。在docker中每一次生成镜像，则镜像便多了一层(layer)。
+    
+#### 4.1.4 docker commit
+
+现在这个命令登场是顺理成章的了，它会把我们对容器层的修改提交为新的镜像。
+
+https://www.runoob.com/docker/docker-commit-command.html
+
+##### docker commit :
+从容器创建一个新的镜像。
+
+##### 语法
+```text
+docker commit [OPTIONS] CONTAINER [REPOSITORY[:TAG]]
+```
+##### OPTIONS说明：
+
+* -a :提交的镜像作者；
+
+* -c :使用Dockerfile指令来创建镜像；
+
+* -m :提交时的说明文字；
+
+* -p :在commit时，将容器暂停。
+
+和git commit 是不是超级像？
+
+##### 实例
+将容器a404c6c174a2 保存为新的镜像,并添加提交人信息和说明信息。
+```text
+runoob@runoob:~$ docker commit -a "runoob.com" -m "my apache" a404c6c174a2  mymysql:v1 
+sha256:37af1236adef1544e8886be23010b66577647a40bc02c0885a6600b33ee28057
+runoob@runoob:~$ docker images mymysql:v1
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+mymysql             v1                  37af1236adef        15 seconds ago      329 MB
+```
+提交后生成了新的镜像。提交到了哪里呢?提交到了本地。就像git commit一样，保存了修改。
 
 
