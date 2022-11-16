@@ -26,6 +26,10 @@
 
 ### Docker的安装
 
+学习过程建议使用windows、macOS等我们日常使用的系统下安装docker，不建议在虚拟机下的centos等terminal终端操作的系统安装，因为：
+1. 不方便拷贝文本；
+2. 可能被GFW干扰访问dockerHub。
+
 #### centOS安装docker
 
 https://docs.docker.com/engine/install/centos/
@@ -52,6 +56,10 @@ docker run hello-world
 https://docs.docker.com/desktop/install/windows-install/
 
 达不到win10最低版本要求不要怕，docker运行时会提示修复。
+
+#### macOS安装docker
+
+未实战，先略过。
 
 #### 什么是容器？
 简而言之，容器是您机器上的沙盒进程，与主机上的所有其他进程隔离。这种隔离利用了内核命名空间和 cgroups，这些特性在 Linux 中已经存在了很长时间。
@@ -412,4 +420,61 @@ mymysql             v1                  37af1236adef        15 seconds ago      
 ```
 提交后生成了新的镜像。提交到了哪里呢?提交到了本地。就像git commit一样，保存了修改。
 
+#### 4.1.4 docker push
 
+跟git一样，docker在commit以后接着可以push。git push需要一个git remote repository，那么docker push又会push到哪里呢？
+
+我制作了一个镜像myubuntu:1.0.0，使用如下命令测试了一下：
+```text
+docker push myubuntu:1.0.0
+```
+请求被拒绝。猜测是提交到dockerHub时未登录造成的，https://hub.docker.com/signup 去注册一个账号然后返回登录
+```text
+docker login
+#登录到阿里云镜像服务器，可能不一定是qingdao
+docker login --username=xxx registry.cn-qingdao.aliyuncs.com
+```
+继续push仍然拒绝,在dockerHub上建一个仓库名为myubuntu仍然失败，看到页面上提示的docker push command:
+```text
+docker push myname/myubuntu:tagname
+```
+仍然不对，找不到本地的镜像的myname组。
+
+把仓库改为共有，仍然拒绝。后来想了想是不是GFW造成的，因为虚拟机上的centos无法科学上网，便用windows下的docker进行演示，
+中途仍出现request denied，后来我pull了hello-world镜像，run后将实例生成镜像,命名为myubuntu:v1,添加了一个组，即myname/myubuntu:v1,
+和dockerHub保持一致，
+最后用docker push myname/myubuntu:v1成功push。所以我最终还是没有排除是不是GFW造成的。断开我的vpn，发现dockerHub并没有被墙。
+
+视频作者使用的阿里云镜像服务，不太想用。不过如何push到阿里云镜像的命令还是要知道，即在myname/myubuntu:v1加上阿里云镜像仓库地址：
+变成registry.cn-qingdao.aliyuncs.com/myname/myubuntu:v1即可。push之前还要自建命名空间“myname”和仓库myubuntu。
+
+#### 4.1.5 docker私服
+
+先pull docker registry，然后run，便创建了一个本地版本的dockerHub。
+
+然后参考下阿里云如何push一个镜像到仓库，在push的目标仓库前加上阿里云仓库地址即可。私服也一样，用ip:port表示。
+
+另外要做的事情挺多的，run registry带的参数也暂时理解不了，还要配支持http，端口映射什么的，不如要用到的时候再搞吧。
+
+## 五、 Docker容器数据卷
+
+卷就是目录或文件，存在于一个或多个容器中，由docker挂载到容器，但不属于联合文件系统，因此能够绕过unionFS提供一些用于持久存储或共享数据的特性。
+
+卷的设计目的就是数据的持久化，完全独立于容器的生存周期，因此docker不会在容器删除时删除其挂载的数据卷。
+
+docker run的一个option:--volume , -v: 绑定一个卷。
+
+### 实例：
+
+使用镜像 nginx:latest，以后台模式启动一个容器,将容器的 80 端口映射到主机的 80 端口,主机的目录 /data 映射到容器的 /data。
+
+```text
+docker run -p 80:80 -v /data:/data -d nginx:latest
+```
+另一个重要option: --privilege=true，开启特权，即让容器获得容器卷的root权限。这个建议加上，免得出现权限问题。
+
+### 检查数据卷是否加载成功：
+```text
+docker inspect 容器ID
+```
+会输出一个json，其中Mounts节点可看到加载的数据卷映射情况。
