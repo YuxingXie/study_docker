@@ -578,7 +578,7 @@ $ docker build -t nginx:v3 .
 
 ### 6.4 指令详解
 
-#### COPY
+#### 6.4.1.COPY
 复制指令，从上下文目录中复制文件或者目录到容器里指定路径。
 
 格式：
@@ -594,12 +594,12 @@ COPY hom?.txt /mydir/
 
 
 
-#### ADD
+#### 6.4.2.ADD
 ADD 指令和 COPY 的使用格类似（同样需求下，官方推荐使用 COPY）。功能也类似，不同之处如下：
 
 * ADD 的优点：在执行 <源文件> 为 tar 压缩文件的话，压缩格式为 gzip, bzip2 以及 xz 的情况下，会自动复制并解压到 <目标路径>。
 * ADD 的缺点：在不解压的前提下，无法复制 tar 压缩文件。会令镜像构建缓存失效，从而可能会令镜像构建变得比较缓慢。具体是否使用，可以根据是否需要自动解压来决定。
-#### CMD
+#### 6.4.3.CMD
 类似于 RUN 指令，用于运行程序，但二者运行的时间点不同:
 
 * CMD 在docker run 时运行。
@@ -617,7 +617,7 @@ CMD ["<param1>","<param2>",...]  # 该写法是为 ENTRYPOINT 指令指定的程
 
 推荐使用第二种格式，执行过程比较明确。第一种格式实际上在运行的过程中也会自动转换成第二种格式运行，并且默认可执行文件是 sh。
 
-#### ENTRYPOINT
+#### 6.4.4.ENTRYPOINT
 类似于 CMD 指令，但其不会被 docker run 的命令行参数指定的指令所覆盖，而且这些命令行参数会被当作参数送给 ENTRYPOINT 指令指定的程序。
 
 但是, 如果运行 docker run 时使用了 --entrypoint 选项，将覆盖 ENTRYPOINT 指令指定的程序。
@@ -660,7 +660,7 @@ $ docker run  nginx:test -c /etc/nginx/new.conf
 ```text
 nginx -c /etc/nginx/new.conf
 ```
-#### ENV
+#### 6.4.5.ENV
 设置环境变量，定义了环境变量，那么在后续的指令中，就可以使用这个环境变量。
 
 格式：
@@ -677,7 +677,7 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc"
 ```
 
-#### ARG
+#### 6.4.6.ARG
 构建参数，与 ENV 作用一致。不过作用域不一样。ARG 设置的环境变量仅对 Dockerfile 内有效，也就是说只有 docker build 的过程中有效，构建好的镜像内不存在此环境变量。
 
 构建命令 docker build 中可以用 --build-arg <参数名>=<值> 来覆盖。
@@ -686,7 +686,7 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
 ```text
 ARG <参数名>[=<默认值>]
 ```
-#### VOLUME
+#### 6.4.7.VOLUME
 定义匿名数据卷。在启动容器时忘记挂载数据卷，会自动挂载到匿名卷。
 
 作用：
@@ -701,7 +701,7 @@ VOLUME <路径>
 
 在启动容器 docker run 的时候，我们可以通过 -v 参数修改挂载点。
 
-#### EXPOSE
+#### 6.4.8.EXPOSE
 仅仅只是声明端口。
 
 作用：
@@ -715,7 +715,7 @@ VOLUME <路径>
 EXPOSE <端口1> [<端口2>...]
 ```
 
-#### WORKDIR
+#### 6.4.9.WORKDIR
 指定工作目录。用 WORKDIR 指定的工作目录，会在构建镜像的每一层中都存在。以后各层的当前目录就被改为指定的目录，如该目录不存在，WORKDIR 会帮你建立目录。
 
 docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一层。只有通过 WORKDIR 创建的目录才会一直存在。
@@ -724,14 +724,14 @@ docker build 构建镜像过程中的，每一个 RUN 命令都是新建的一�
 ```text
 WORKDIR <工作目录路径>
 ```
-#### USER
+#### 6.4.10.USER
 用于指定执行后续命令的用户和用户组，这边只是切换后续命令执行的用户（用户和用户组必须提前已经存在）。
 
 格式：
 ```text
 USER <用户名>[:<用户组>]
 ```
-#### HEALTHCHECK
+#### 6.4.11.HEALTHCHECK
 用于指定某个程序或者指令来监控 docker 容器服务的运行状态。
 
 格式：
@@ -742,14 +742,14 @@ HEALTHCHECK NONE：如果基础镜像有健康检查指令，使用这行可以�
 HEALTHCHECK [选项] CMD <命令> : 这边 CMD 后面跟随的命令使用，可以参考 CMD 的用法。
 ```
 
-### ONBUILD
+#### 6.4.12.ONBUILD
 用于延迟构建命令的执行。简单的说，就是 Dockerfile 里用 ONBUILD 指定的命令，在本次构建镜像的过程中不会执行（假设镜像为 test-build）。当有新的 Dockerfile 使用了之前构建的镜像 FROM test-build ，这时执行新镜像的 Dockerfile 构建时候，会执行 test-build 的 Dockerfile 里的 ONBUILD 指定的命令。
 
 格式：
 ```text
 ONBUILD <其它指令>
 ```
-#### LABEL
+#### 6.4.13.LABEL
 LABEL 指令用来给镜像添加一些元数据（metadata），以键值对的形式，语法格式如下：
 ```text
 LABEL <key>=<value> <key>=<value> <key>=<value> ...
