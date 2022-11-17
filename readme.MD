@@ -511,7 +511,7 @@ FROM nginx
 RUN echo '这是一个本地构建的nginx镜像' > /usr/share/nginx/html/index.html
 
 ```
-![](https://github.com/YuxingXie/study-docker/blob/assets/img/001.png)
+![](https://github.com/YuxingXie/study-docker/blob/master/assets/img/001.png)
 
 2. FROM 和 RUN 指令的作用
 
