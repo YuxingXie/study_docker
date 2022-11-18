@@ -57,6 +57,8 @@ https://docs.docker.com/desktop/install/windows-install/
 
 达不到win10最低版本要求不要怕，docker运行时会提示修复。
 
+windows启动docker:启动Desktop Docker，小鲸鱼图标。
+
 #### macOS安装docker
 
 未实战，先略过。
