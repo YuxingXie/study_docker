@@ -760,3 +760,26 @@ LABEL <key>=<value> <key>=<value> <key>=<value> ...
 ```text
 LABEL org.opencontainers.image.authors="runoob"
 ```
+
+
+## 七、 docker network
+
+docker run时可加上如下option使用network模式
+```text
+--network=[NETWORK_MODE]
+
+# NETWORK_MODE可以是 bridge|host|none。
+```
+
+### 7.1 bridge模式
+
+默认情况下，每一个docker容器有自己独立的网卡ip，所有容器共用一个网桥，就像所有容器都处于同一个局域网网段内一样。
+
+### 7.2 host模式
+
+在host模式下，每个docker容器不再单独获得独立的Network Namespace。容器不再虚拟出自己的网卡而是使用宿主机的网卡和ip。
+
+使用host模式时，主机和容器之间的端口映射关系没有意义了，设置了也不起作用，还会得到一个警告。
+
+此时程序就像运行在宿主机上一样。
+
