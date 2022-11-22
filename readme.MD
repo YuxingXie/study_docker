@@ -844,3 +844,5 @@ docker compose能管理容器实例的加载顺序和依赖关系，和spring be
 可参考： 
 * https://docs.docker.com/compose/compose-file/
 * https://www.runoob.com/docker/docker-compose.html
+
+Portainer和CIG也不研究了。
