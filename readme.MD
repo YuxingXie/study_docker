@@ -768,7 +768,7 @@ docker run时可加上如下option使用network模式
 ```text
 --network=[NETWORK_MODE]
 
-# NETWORK_MODE可以是 bridge|host|none。
+# NETWORK_MODE可以是 bridge|host|none|container,以及自定义模式。
 ```
 
 ### 7.1 bridge模式
@@ -781,5 +781,66 @@ docker run时可加上如下option使用network模式
 
 使用host模式时，主机和容器之间的端口映射关系没有意义了，设置了也不起作用，还会得到一个警告。
 
-此时程序就像运行在宿主机上一样。
+此时程序就像运行在宿主机上一样,程序端口号不变，占用的话端口号递增(+1)。
 
+### 7.3 none模式
+
+docker容器不使用任何网络配置。这个很少用，了解一下即可。
+
+### 7.4 container模式
+
+一个容器与另一个容器共享网络配置：
+```text
+--network=container:容器id或name。
+```
+注意两个容器之间不要存在端口冲突。
+
+当关闭有网络配置的那个容器时，另一个容器网络模式会变成host模式。
+
+### 7.5 自定义模式
+
+容器的ip有可能是动态分配的，有可能随时变动。为了让程序访问固定，比如一个容器直接访问另一个容器时，需要固定ip，我们需要自定义模式。
+
+这里需要用到一个新命令：
+```text
+docker network create CUSTOM_NETWORK_NAME
+```
+docker会创建一个新的网络模式名称。
+其实之前的bridge,none,host等都是一个网络模式名称，这里我们只是新增一个模式而已。
+
+可以使用`docker network ps`命令查看docker上存在的网络模式。
+
+所以可以使用--network=CUSTOM_NETWORK_NAME指定容器的网络模式。
+
+说到这，怎么固定呢？其实这个时候ip仍然可能是变化的（我猜测的），但是我们可以用另一个策略进行容器互访：
+
+假设在一个容器用ping命令查询另一个容器的网络是否通畅,以前：
+```text
+# 在192.168.3.1的容器内ping 192.168.3.2
+ping 192.168.3.2
+```
+
+现在让192.168.3.2 容器使用自定义模式:
+```text
+# 在192.168.3.1的容器内ping ip为192.168.3.2，name为exampleName的容器
+ping exampleName
+```
+当然容器名也可以是容器id。现在可以无视ip变化ping通了。
+
+## 第八章、 docker compose
+
+这是最后一个重要知识点了。
+
+docker compose是一个管理docker容器集群的管理工具。它有点类似于spring的bean管理，我们也完全可以这样去类比，而且都能用.yml文件进行配置。
+
+docker compose能管理容器实例的加载顺序和依赖关系，和spring bean管理类似。
+
+虽然理解起来很容易，但却是需要掌握语法、关键字等内容的一章，这种内容还是在实战中锻炼吧。
+
+### 8.1 下载安装
+
+本章实战为主不搞理论研究了。
+
+可参考： 
+* https://docs.docker.com/compose/compose-file/
+* https://www.runoob.com/docker/docker-compose.html
